@@ -1,28 +1,16 @@
-import { useEffect, useState } from "react";
+import Login from "./Login";
+import Dashboard from "./Dashboard";
 
-function App() {
+function App(){
 
-  const [joias, setJoias] = useState([]);
+  const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    fetch("http://localhost:5046/api/joias")
-      .then(res => res.json())
-      .then(data => setJoias(data));
-  }, []);
+  if(!token){
+    return <Login/>
+  }
 
-  return (
-    <div style={{padding:"40px"}}>
+  return <Dashboard/>
 
-      <h1>💎 Vivace CRM</h1>
-
-      {joias.map(j => (
-        <div key={j.id}>
-          {j.nome} - {j.preco}€
-        </div>
-      ))}
-
-    </div>
-  );
 }
 
 export default App;
