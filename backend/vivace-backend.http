@@ -1,0 +1,6 @@
+@vivace_backend_HostAddress = http://localhost:5046
+
+GET {{vivace_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
