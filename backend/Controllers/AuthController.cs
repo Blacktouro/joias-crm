@@ -42,7 +42,8 @@ namespace JoiasCRM.Controllers
         public IActionResult Login(LoginDTO dto)
         {
 
-            var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
+            var user = _context.Users
+                .FirstOrDefault(u => u.Username == dto.Username);
 
             if (user == null)
                 return Unauthorized();
@@ -52,7 +53,8 @@ namespace JoiasCRM.Controllers
             if (!valid)
                 return Unauthorized();
 
-            return Ok(new { message = "Login sucesso" });
+            return Ok(new { token = "login_ok" });
+
         }
 
         [HttpPost("recover")]
