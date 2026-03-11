@@ -35,29 +35,27 @@ function Login(){
       const data = await res.json()
 
       if(data.token){
-
         localStorage.setItem("token",data.token)
-
         window.location.reload()
-
       }else{
         setError("Login inválido")
       }
 
     }catch(err){
-
       setError("Erro ao ligar ao servidor")
-
     }
 
     setLoading(false)
-
   }
 
   const handleKey = (e) => {
     if(e.key === "Enter"){
       login()
     }
+  }
+
+  const goRegister = () => {
+    window.location.href = "/register"
   }
 
   return(
@@ -90,9 +88,11 @@ function Login(){
         />
 
         <button onClick={login} disabled={loading}>
-
           {loading ? "A entrar..." : "Login"}
+        </button>
 
+        <button className="register-btn" onClick={goRegister}>
+          Criar conta
         </button>
 
         <div className="login-footer">
@@ -104,7 +104,6 @@ function Login(){
     </div>
 
   )
-
 }
 
 export default Login
