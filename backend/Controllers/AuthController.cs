@@ -1,47 +1,75 @@
 using Microsoft.AspNetCore.Mvc;
-using vivace_backend.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using JoiasCRM.Data;
+using JoiasCRM.Models;
+using JoiasCRM.DTO;
+using BCrypt.Net;
 
-namespace vivace_backend.Controllers
+namespace JoiasCRM.Controllers
 {
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
 
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] User user)
+        private readonly AppDbContext _context;
+
+        public AuthController(AppDbContext context)
         {
-            if (user.Username == "andre" && user.Password == "1234")
+            _context = context;
+        }
+
+        [HttpPost("register")]
+        public IActionResult Register(RegisterDTO dto)
+        {
+
+            var hash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            var user = new User
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes("vivace_crm_super_secret_key_2026_secure");
+                Username = dto.Username,
+                Email = dto.Email,
+                PasswordHash = hash,
+                BirthDate = dto.BirthDate
+            };
 
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.Name, user.Username)
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(2),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(key),
-                        SecurityAlgorithms.HmacSha256Signature
-                    )
-                };
+            _context.Users.Add(user);
+            _context.SaveChanges();
 
-                var token = tokenHandler.CreateToken(tokenDescriptor);
+            return Ok("User criado");
+        }
 
-                return Ok(new
-                {
-                    token = tokenHandler.WriteToken(token)
-                });
-            }
+        [HttpPost("login")]
+        public IActionResult Login(LoginDTO dto)
+        {
 
-            return Unauthorized();
+            var user = _context.Users.FirstOrDefault(u => u.Username == dto.Username);
+
+            if (user == null)
+                return Unauthorized();
+
+            bool valid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
+
+            if (!valid)
+                return Unauthorized();
+
+            return Ok(new { message = "Login sucesso" });
+        }
+
+        [HttpPost("recover")]
+        public IActionResult Recover(RecoverDTO dto)
+        {
+
+            var user = _context.Users
+                .FirstOrDefault(u => u.Email == dto.Email && u.BirthDate == dto.BirthDate);
+
+            if (user == null)
+                return BadRequest("Dados inválidos");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+            _context.SaveChanges();
+
+            return Ok("Password alterada");
         }
     }
 }
