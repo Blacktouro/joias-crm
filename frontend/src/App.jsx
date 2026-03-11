@@ -1,9 +1,9 @@
-import Login from "./Login";
-import Dashboard from "./Dashboard";
+import Login from "./Login"
+import Dashboard from "./Dashboard"
 
 function App(){
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token")
 
   if(!token){
     return <Login/>
@@ -13,4 +13,4 @@ function App(){
 
 }
 
-export default App;
+export default App

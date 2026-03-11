@@ -1,61 +1,105 @@
 import { useState } from "react"
+import "./static/css/Login.css"
 
 function Login(){
 
   const [username,setUsername] = useState("")
   const [password,setPassword] = useState("")
+  const [error,setError] = useState("")
+  const [loading,setLoading] = useState(false)
 
   const login = async () => {
 
-    const res = await fetch("http://localhost:5046/api/auth/login",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        username,
-        password
-      })
-    })
+    setError("")
 
-    const data = await res.json()
-
-    if(data.token){
-      localStorage.setItem("token",data.token)
-
-      // força React a atualizar
-      window.location.reload()
-
-    }else{
-      alert("Login inválido")
+    if(!username || !password){
+      setError("Preencha username e password")
+      return
     }
 
+    try{
+
+      setLoading(true)
+
+      const res = await fetch("http://localhost:5046/api/auth/login",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      })
+
+      const data = await res.json()
+
+      if(data.token){
+
+        localStorage.setItem("token",data.token)
+
+        window.location.reload()
+
+      }else{
+        setError("Login inválido")
+      }
+
+    }catch(err){
+
+      setError("Erro ao ligar ao servidor")
+
+    }
+
+    setLoading(false)
+
+  }
+
+  const handleKey = (e) => {
+    if(e.key === "Enter"){
+      login()
+    }
   }
 
   return(
 
-    <div style={{padding:"40px"}}>
+    <div className="login-container">
 
-      <h2>Login Vivace CRM</h2>
+      <div className="login-card">
 
-      <input
-        placeholder="Username"
-        onChange={(e)=>setUsername(e.target.value)}
-      />
+        <h2>Vivace CRM</h2>
 
-      <br/><br/>
+        {error && (
+          <div className="login-error">
+            {error}
+          </div>
+        )}
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e)=>setPassword(e.target.value)}
-      />
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={(e)=>setUsername(e.target.value)}
+          onKeyDown={handleKey}
+        />
 
-      <br/><br/>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e)=>setPassword(e.target.value)}
+          onKeyDown={handleKey}
+        />
 
-      <button onClick={login}>
-        Login
-      </button>
+        <button onClick={login} disabled={loading}>
+
+          {loading ? "A entrar..." : "Login"}
+
+        </button>
+
+        <div className="login-footer">
+          CRM de gestão de joias
+        </div>
+
+      </div>
 
     </div>
 
