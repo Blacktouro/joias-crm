@@ -1,11 +1,12 @@
-import { useState } from "react";
-import Navbar from "./components/Navbar";
-import "./static/css/pecas.css";
+import { useState, useEffect } from "react"
+import Navbar from "./components/Navbar"
+import "./static/css/pecas.css"
 
 function Pecas(){
 
-const [peca,setPeca] = useState({
-idPeca:"",
+const [pecas,setPecas] = useState([])
+
+const [form,setForm] = useState({
 lote:"",
 descricao:"",
 tipo:"",
@@ -14,27 +15,81 @@ valorReal:"",
 percentagem:""
 })
 
-const taxaEuro = 0.18
+const taxa = 0.18
 
-const valorEuro = (peca.valorReal || 0) * taxaEuro
-const valorVenda = valorEuro + (valorEuro * ((peca.percentagem || 0)/100))
+
+// buscar peças no SQL
+useEffect(()=>{
+
+fetch("http://localhost:5046/api/pecas")
+.then(res=>res.json())
+.then(data=>setPecas(data))
+
+},[])
+
+
 
 function handleChange(e){
-setPeca({
-...peca,
+
+setForm({
+...form,
 [e.target.name]: e.target.value
 })
+
 }
 
-function adicionarPeca(){
 
-console.log({
-...peca,
-valorEuro,
-valorVenda
+
+async function adicionar(){
+
+const custoEuro = form.valorReal * taxa
+const venda = custoEuro + custoEuro*(form.percentagem/100)
+
+const novaPeca = {
+
+lote: parseInt(form.lote),
+descricao: form.descricao,
+tipo: form.tipo,
+material: form.material,
+valorReal: parseFloat(form.valorReal),
+custoEuro: custoEuro,
+valorVenda: venda
+
+}
+
+const res = await fetch("http://localhost:5046/api/pecas",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body: JSON.stringify(novaPeca)
+
 })
 
+const data = await res.json()
+
+setPecas([...pecas,data])
+
 }
+
+
+
+async function apagar(id){
+
+await fetch(`http://localhost:5046/api/pecas/${id}`,{
+
+method:"DELETE"
+
+})
+
+setPecas(pecas.filter(p=>p.id !== id))
+
+}
+
+
 
 return(
 
@@ -44,100 +99,93 @@ return(
 
 <div className="container">
 
-{/* FORM */}
+<h1>📦 Gestão de Peças</h1>
 
-<div className="formPeca">
+{/* BARRA ADD */}
 
-<h2>Adicionar nova peça</h2>
+<div className="addBar">
 
-<div className="formGroup">
-<label>ID da peça</label>
-<input name="idPeca" onChange={handleChange}/>
-</div>
+<input name="lote" placeholder="Lote" onChange={handleChange}/>
 
-<div className="formGroup">
-<label>Lote</label>
-<input name="lote" onChange={handleChange}/>
-</div>
+<input name="descricao" placeholder="Descrição" onChange={handleChange}/>
 
-<div className="formGroup">
-<label>Descrição</label>
-<input name="descricao" onChange={handleChange}/>
-</div>
-
-<div className="formGroup">
-<label>Tipo</label>
 <select name="tipo" onChange={handleChange}>
+<option value="">Tipo</option>
 <option>Brinco</option>
 <option>Colar</option>
 <option>Pulseira</option>
-<option>Anel</option>
 </select>
-</div>
 
-<div className="formGroup">
-<label>Material</label>
 <select name="material" onChange={handleChange}>
+<option value="">Material</option>
 <option>Ouro</option>
 <option>Prata</option>
-<option>Aço inox</option>
+<option>Aço</option>
 </select>
-</div>
 
-<div className="formGroup">
-<label>Valor no Brasil (R$)</label>
-<input type="number" name="valorReal" onChange={handleChange}/>
-</div>
+<input name="valorReal" placeholder="R$" type="number" onChange={handleChange}/>
 
-<div className="formGroup">
-<label>Margem %</label>
-<input type="number" name="percentagem" onChange={handleChange}/>
-</div>
+<input name="percentagem" placeholder="% margem" type="number" onChange={handleChange}/>
 
-<div className="resultado">
-
-<p>💱 Custo em Euro: {valorEuro.toFixed(2)} €</p>
-
-<p>💰 Preço de venda: {valorVenda.toFixed(2)} €</p>
-
-</div>
-
-<button className="btnAdd" onClick={adicionarPeca}>
-Adicionar peça
+<button className="btnAdd" onClick={adicionar}>
+Adicionar
 </button>
 
 </div>
 
 
-{/* LISTA */}
+{/* TABELA */}
 
 <div className="listaPecas">
-
-<h2>Peças registadas</h2>
 
 <table>
 
 <thead>
+
 <tr>
+
 <th>ID</th>
+<th>Lote</th>
 <th>Descrição</th>
 <th>Tipo</th>
 <th>Material</th>
 <th>Custo €</th>
 <th>Venda €</th>
+<th>Ações</th>
+
 </tr>
+
 </thead>
 
 <tbody>
 
-<tr>
-<td>3456</td>
-<td>Brinco ouro 18k</td>
-<td>Brinco</td>
-<td>Ouro</td>
-<td>4.50€</td>
-<td>13.50€</td>
+{pecas.map((p)=>(
+
+<tr key={p.id}>
+
+<td>{p.id}</td>
+<td>{p.lote}</td>
+<td>{p.descricao}</td>
+<td>{p.tipo}</td>
+<td>{p.material}</td>
+<td>{p.custoEuro}€</td>
+<td>{p.valorVenda}€</td>
+
+<td>
+
+<button className="btnEdit">
+Editar
+</button>
+
+<button className="btnDelete" onClick={()=>apagar(p.id)}>
+Apagar
+</button>
+
+</td>
+
 </tr>
+
+))}
 
 </tbody>
 
