@@ -1,24 +1,24 @@
-import Login from "./Login"
-import Register from "./Register"
-import Dashboard from "./Dashboard"
+import { BrowserRouter,Routes,Route } from "react-router-dom";
+
+import Dashboard from "./Dashboard";
+import Pecas from "./Pecas";
 
 function App(){
 
-  const token = localStorage.getItem("token")
-  const path = window.location.pathname
+return(
 
-  // se estiver na página de registo
-  if(path === "/register"){
-    return <Register/>
-  }
+<BrowserRouter>
 
-  // se não tiver login
-  if(!token){
-    return <Login/>
-  }
+<Routes>
 
-  // se tiver login vai para dashboard
-  return <Dashboard/>
+<Route path="/" element={<Dashboard/>} />
+<Route path="/pecas" element={<Pecas/>} />
+
+</Routes>
+
+</BrowserRouter>
+
+)
 
 }
 
