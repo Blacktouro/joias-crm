@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace JoiasCRM.Models
 {
     public class Peca
@@ -12,10 +14,13 @@ namespace JoiasCRM.Models
 
         public string Material { get; set; }
 
+        [Column(TypeName = "decimal(10,2)")]
         public decimal ValorReal { get; set; }
 
+        [Column(TypeName = "decimal(10,2)")]
         public decimal CustoEuro { get; set; }
 
+        [Column(TypeName = "decimal(10,2)")]
         public decimal ValorVenda { get; set; }
     }
 }

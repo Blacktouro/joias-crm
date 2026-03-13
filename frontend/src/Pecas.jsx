@@ -18,14 +18,22 @@ percentagem:""
 const taxa = 0.18
 
 
-// buscar peças no SQL
+// buscar peças
 useEffect(()=>{
 
-fetch("http://localhost:5046/api/pecas")
-.then(res=>res.json())
-.then(data=>setPecas(data))
+carregarPecas()
 
 },[])
+
+
+async function carregarPecas(){
+
+const res = await fetch("http://localhost:5046/api/pecas")
+const data = await res.json()
+
+setPecas(data)
+
+}
 
 
 
@@ -42,16 +50,21 @@ setForm({
 
 async function adicionar(){
 
-const custoEuro = form.valorReal * taxa
-const venda = custoEuro + custoEuro*(form.percentagem/100)
+try{
+
+const valorReal = parseFloat(form.valorReal)
+const percentagem = parseFloat(form.percentagem)
+
+const custoEuro = valorReal * taxa
+const venda = custoEuro + (custoEuro * percentagem / 100)
 
 const novaPeca = {
 
-lote: parseInt(form.lote),
+loteId: parseInt(form.lote),
 descricao: form.descricao,
 tipo: form.tipo,
 material: form.material,
-valorReal: parseFloat(form.valorReal),
+valorReal: valorReal,
 custoEuro: custoEuro,
 valorVenda: venda
 
@@ -72,6 +85,12 @@ body: JSON.stringify(novaPeca)
 const data = await res.json()
 
 setPecas([...pecas,data])
+
+}catch(err){
+
+console.error("Erro ao adicionar peça:",err)
+
+}
 
 }
 
@@ -101,7 +120,8 @@ return(
 
 <h1>📦 Gestão de Peças</h1>
 
-{/* BARRA ADD */}
+
+{/* ADD */}
 
 <div className="addBar">
 
@@ -164,12 +184,12 @@ Adicionar
 <tr key={p.id}>
 
 <td>{p.id}</td>
-<td>{p.lote}</td>
+<td>{p.loteId}</td>
 <td>{p.descricao}</td>
 <td>{p.tipo}</td>
 <td>{p.material}</td>
-<td>{p.custoEuro}€</td>
-<td>{p.valorVenda}€</td>
+<td>{p.custoEuro?.toFixed(2)}€</td>
+<td>{p.valorVenda?.toFixed(2)}€</td>
 
 <td>
 
