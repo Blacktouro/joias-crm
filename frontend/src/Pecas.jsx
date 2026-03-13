@@ -5,6 +5,7 @@ import "./static/css/pecas.css"
 function Pecas(){
 
 const [pecas,setPecas] = useState([])
+const [lotes,setLotes] = useState([])
 
 const [form,setForm] = useState({
 lote:"",
@@ -18,12 +19,14 @@ percentagem:""
 const taxa = 0.18
 
 
-// buscar peças
+// carregar dados ao iniciar
 useEffect(()=>{
 
 carregarPecas()
+carregarLotes()
 
 },[])
+
 
 
 async function carregarPecas(){
@@ -32,6 +35,17 @@ const res = await fetch("http://localhost:5046/api/pecas")
 const data = await res.json()
 
 setPecas(data)
+
+}
+
+
+
+async function carregarLotes(){
+
+const res = await fetch("http://localhost:5046/api/lotes")
+const data = await res.json()
+
+setLotes(data)
 
 }
 
@@ -52,8 +66,13 @@ async function adicionar(){
 
 try{
 
-const valorReal = parseFloat(form.valorReal)
-const percentagem = parseFloat(form.percentagem)
+if(!form.lote || !form.descricao || !form.tipo || !form.material){
+alert("Preencha todos os campos")
+return
+}
+
+const valorReal = parseFloat(form.valorReal) || 0
+const percentagem = parseFloat(form.percentagem) || 0
 
 const custoEuro = valorReal * taxa
 const venda = custoEuro + (custoEuro * percentagem / 100)
@@ -85,6 +104,16 @@ body: JSON.stringify(novaPeca)
 const data = await res.json()
 
 setPecas([...pecas,data])
+
+// limpar formulário
+setForm({
+lote:"",
+descricao:"",
+tipo:"",
+material:"",
+valorReal:"",
+percentagem:""
+})
 
 }catch(err){
 
@@ -125,27 +154,59 @@ return(
 
 <div className="addBar">
 
-<input name="lote" placeholder="Lote" onChange={handleChange}/>
+<select name="lote" value={form.lote} onChange={handleChange}>
 
-<input name="descricao" placeholder="Descrição" onChange={handleChange}/>
+<option value="">Selecionar lote</option>
 
-<select name="tipo" onChange={handleChange}>
+{lotes.map(l=>(
+<option key={l.id} value={l.id}>
+{l.codigoLote}
+</option>
+))}
+
+</select>
+
+
+<input 
+name="descricao"
+placeholder="Descrição"
+value={form.descricao}
+onChange={handleChange}
+/>
+
+<select name="tipo" value={form.tipo} onChange={handleChange}>
 <option value="">Tipo</option>
 <option>Brinco</option>
 <option>Colar</option>
 <option>Pulseira</option>
 </select>
 
-<select name="material" onChange={handleChange}>
+
+<select name="material" value={form.material} onChange={handleChange}>
 <option value="">Material</option>
 <option>Ouro</option>
 <option>Prata</option>
 <option>Aço</option>
 </select>
 
-<input name="valorReal" placeholder="R$" type="number" onChange={handleChange}/>
 
-<input name="percentagem" placeholder="% margem" type="number" onChange={handleChange}/>
+<input
+name="valorReal"
+placeholder="R$"
+type="number"
+value={form.valorReal}
+onChange={handleChange}
+/>
+
+
+<input
+name="percentagem"
+placeholder="% margem"
+type="number"
+value={form.percentagem}
+onChange={handleChange}
+/>
+
 
 <button className="btnAdd" onClick={adicionar}>
 Adicionar

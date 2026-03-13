@@ -13,6 +13,7 @@ namespace JoiasCRM.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Peca> Pecas { get; set; }
+        public DbSet<Lote> Lotes { get; set; }
         
     }
 }
