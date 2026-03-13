@@ -64,7 +64,7 @@ function Dashboard(){
 
                 <ul>
                     <li onClick={()=>navigate("/pecas")}>📦 Peças</li>
-                    <li>🏷️ Lotes</li>
+                    <li onClick={()=>navigate("/Lotes")}>🏷️ Lotes</li>
                     <li>💰 Vendas</li>
                     <li>👩 Vendedoras</li>
                     <li>📊 Relatórios</li>
