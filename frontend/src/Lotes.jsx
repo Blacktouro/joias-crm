@@ -20,26 +20,20 @@ estado:""
 })
 
 
-
 // carregar lotes
 useEffect(()=>{
-
 carregarLotes()
-
 },[])
-
 
 
 async function carregarLotes(){
 
 const res = await fetch("http://localhost:5046/api/lotes")
-
 const data = await res.json()
 
 setLotes(data)
 
 }
-
 
 
 function handleChange(e){
@@ -52,37 +46,36 @@ setForm({
 }
 
 
-
 async function adicionar(){
 
-try{
+console.log("clicou no botão")
 
+try{
 const novoLote = {
 
 codigoLote: form.codigoLote,
 fornecedor: form.fornecedor,
-valorReal: parseFloat(form.valorReal),
-valorEuro: parseFloat(form.valorEuro),
-numeroPecas: parseInt(form.numeroPecas),
-valorAlfandega: parseFloat(form.valorAlfandega),
-valorTransporte: parseFloat(form.valorTransporte),
+valorReal: parseFloat(form.valorReal) || 0,
+valorEuro: parseFloat(form.valorEuro) || 0,
+numeroPecas: parseInt(form.numeroPecas) || 0,
+valorAlfandega: parseFloat(form.valorAlfandega) || 0,
+valorTransporte: parseFloat(form.valorTransporte) || 0,
 transportadora: form.transportadora,
-diasEntrega: parseInt(form.diasEntrega),
+diasEntrega: parseInt(form.diasEntrega) || 0,
 estado: form.estado
 
 }
 
 const res = await fetch("http://localhost:5046/api/lotes",{
-
 method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
+headers:{ "Content-Type":"application/json" },
 body: JSON.stringify(novoLote)
-
 })
+
+if(!res.ok){
+console.error("Erro na API")
+return
+}
 
 const data = await res.json()
 
@@ -95,7 +88,6 @@ console.error("Erro ao adicionar lote",err)
 }
 
 }
-
 
 
 async function apagar(id){
@@ -122,9 +114,6 @@ return(
 
 <h1>📦 Gestão de Lotes</h1>
 
-
-{/* FORM */}
-
 <div className="addBar">
 
 <input name="codigoLote" placeholder="Código lote" onChange={handleChange}/>
@@ -148,7 +137,6 @@ return(
 <select name="estado" onChange={handleChange}>
 
 <option value="">Estado</option>
-
 <option>Encomendado</option>
 <option>Em transporte</option>
 <option>Recebido</option>
@@ -162,8 +150,6 @@ Adicionar Lote
 </div>
 
 
-
-{/* TABELA */}
 
 <div className="listaPecas">
 
