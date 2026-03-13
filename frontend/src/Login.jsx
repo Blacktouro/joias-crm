@@ -96,7 +96,7 @@ function Login(){
         </button>
 
         <div className="login-footer">
-          CRM de gestão de joias
+          CRM de gestão
         </div>
 
       </div>
