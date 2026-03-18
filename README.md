@@ -18,9 +18,9 @@ O objetivo principal é **aprender e consolidar competências de desenvolvimento
 
 ## 🛠️ Tecnologias Utilizadas
 
-- [Tecnologia principal – ex: JavaScript, Python, etc.]
-- [Framework / biblioteca – se aplicável]
-- [Base de dados – se aplicável]
+- C# , .Net, REACT ,  Javascript.
+- DOCKER, NGINX, VPS
+- SQL
 - Git e GitHub para controlo de versões
 
 > Nota: As tecnologias podem evoluir ao longo do desenvolvimento.
